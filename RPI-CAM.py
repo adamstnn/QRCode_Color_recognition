@@ -3,6 +3,11 @@ from picamera2 import Picamera2
 from huskylib import *
 
 h1 = HuskyLensLibrary("I2C", "", address=0x32)
+
+if not h1.knock():
+    print("HuskyLens not responding — check I2C wiring and address")
+    exit(1)
+
 h1.algorthim("ALGORITHM_COLOR_RECOGNITION")
 
 picam2 = Picamera2()
@@ -58,11 +63,10 @@ while True:
                     (int(current_bbox[0][0]), int(current_bbox[0][1]) - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 250, 120), 2)
 
-        if h1.knock():
-            learned = h1.learnedBlocks()
-            id = learned[0].ID
-            if id == 1:
-                color = "Rose"
+        learned = h1.learnedBlocks()
+        id = learned[0].ID
+        if id == 1:
+            color = "Rose"
                  
             
             
