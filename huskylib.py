@@ -359,7 +359,10 @@ class HuskyLensLibrary:
     def learnedBlocks(self):
         cmd = self.cmdToBytes(commandHeaderAndAddress+"002434")
         self.writeToHuskyLens(cmd)
-        return self.processReturnData()[0]
+        result = self.processReturnData()
+        if result:
+            return result
+        return []
 
     def learnedArrows(self):
         cmd = self.cmdToBytes(commandHeaderAndAddress+"002535")
