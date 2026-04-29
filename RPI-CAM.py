@@ -43,11 +43,13 @@ while True:
                     (int(current_bbox[0][0]), int(current_bbox[0][1]) - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 250, 120), 2)
 
+
         learned = h1.learnedBlocks()
-        if learned and len(learned) > 0:
-            id = learned[0].ID
-            if id == 1:
-                color = "Rose"
+        print(learned)
+        # if learned and len(learned) > 0:
+        #     id = learned[0].ID
+        #     if id == 1:
+        #         color = "Rose"
                  
             
             
