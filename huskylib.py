@@ -30,7 +30,7 @@ while(true):
 
 import time
 import serial
-import png
+#import png
 import json
 
 
@@ -124,7 +124,7 @@ class HuskyLensLibrary:
         return bytes.fromhex(cmd)
 
     def splitCommandToParts(self, str):
-        # print(f"We got this str=> {str}")
+        #print(f"We got this str=> {str}")
         headers = str[0:4]
         address = str[4:6]
         data_length = int(str[6:8], 16)
@@ -168,6 +168,7 @@ class HuskyLensLibrary:
                         byteString += bytes([(self.huskylensSer.read_byte(self.address))])
                     for i in range(int(byteString[3])+1):
                         byteString += bytes([(self.huskylensSer.read_byte(self.address))])
+                #print(byteString)
                 commandSplit = self.splitCommandToParts(byteString.hex())
                 # print(commandSplit)
                 if(commandSplit[3] == "2e"):
@@ -175,13 +176,22 @@ class HuskyLensLibrary:
                     return "Knock Recieved"
                 else:
                     returnData = []
-                    numberOfBlocksOrArrow = int(
+                    print(type(commandSplit[4]), commandSplit, commandSplit[4])
+                    try:
+                        numberOfBlocksOrArrow = int(
                         commandSplit[4][2:4]+commandSplit[4][0:2], 16)
-                    numberOfIDLearned = int(
-                        commandSplit[4][6:8]+commandSplit[4][4:6], 16)
-                    frameNumber = int(
-                        commandSplit[4][10:12]+commandSplit[4][8:10], 16)
-                    isBlock=True
+                        numberOfIDLearned = int(
+                            commandSplit[4][6:8]+commandSplit[4][4:6], 16)
+                        frameNumber = int(
+                            commandSplit[4][10:12]+commandSplit[4][8:10], 16)
+                        isBlock=True
+                    except:
+                        numberOfBlocksOrArrow = 0
+                        numberOfIDLearned = 0
+                        frameNumber = 0
+                        isBlock = False
+                        
+                    print("BLOCKSARROW ETC",numberOfBlocksOrArrow, numberOfIDLearned,frameNumber,isBlock)
                     for i in range(numberOfBlocksOrArrow):
                         tmpObj=self.getBlockOrArrowCommand()
                         isBlock=tmpObj[1]
@@ -192,7 +202,6 @@ class HuskyLensLibrary:
                     
                     finalData = []
                     tmp = []
-                    # print(returnData)
                     for i in returnData:
                         tmp = []
                         for q in range(0, len(i), 4):
@@ -211,6 +220,7 @@ class HuskyLensLibrary:
                         ret.append(numberOfIDLearned)
                     if(frameFlag):
                         ret.append(frameNumber)
+                    print("ret ",type(ret), ret)
                     return ret
             except:
                 if(self.checkOnceAgain):
@@ -329,8 +339,13 @@ class HuskyLensLibrary:
     def blocks(self):
         cmd = self.cmdToBytes(commandHeaderAndAddress+"002131")
         self.writeToHuskyLens(cmd)
-        return self.processReturnData()[0]
-
+        try:
+           
+            
+            return self.processReturnData()[0]
+        except:
+            print("blocks exception")
+            return None
     def arrows(self):
         cmd = self.cmdToBytes(commandHeaderAndAddress+"002232")
         self.writeToHuskyLens(cmd)
@@ -403,3 +418,33 @@ class HuskyLensLibrary:
         self.writeToHuskyLens(cmd)
         return self.processReturnData(frameFlag=True)[-1]
 
+def printObjectNicely(obj):
+    count=1
+    if(type(obj)==list):
+        for i in obj:
+            print("\t "+ ("BLOCK_" if i.type=="BLOCK" else "ARROW_")+str(count)+" : "+ json.dumps(i.__dict__))
+            count+=1
+    else:
+        print("\t "+ ("BLOCK_" if obj.type=="BLOCK" else "ARROW_")+str(count)+" : "+ json.dumps(obj.__dict__))
+
+def main(args):
+    hl= HuskyLensLibrary("I2C","",address=0x32)
+    print(hl.knock())
+    hl.algorthim("ALGORITHM_FACE_RECOGNITION")
+    while(True):
+        data=hl.blocks()
+        x=0
+        if data!= None:
+            '''
+            print(type(data),data)
+            for i in data:
+                x=x+1
+                print("Face {} data: {}".format(x,i))
+            '''
+            printObjectNicely(data)
+    
+    return 0
+
+if __name__ == '__main__':
+    import sys
+    sys.exit(main(sys.argv))
