@@ -1,5 +1,9 @@
 import cv2
 from picamera2 import Picamera2
+from huskylib import *
+
+h1 = HuskyLensLibrary("I2C", "", address=0x32)
+h1.set_alg(ALGORITHM_COLOR_RECOGNITION)
 
 picam2 = Picamera2()
 
@@ -10,6 +14,7 @@ picam2.start()
 
 detector = cv2.wechat_qrcode_WeChatQRCode()
 padding = 30
+color = ""
 
 while True:
     img = picam2.capture_array()
@@ -53,14 +58,17 @@ while True:
                     (int(current_bbox[0][0]), int(current_bbox[0][1]) - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 250, 120), 2)
 
-        if current_data:
-            print("data found: ", current_data)
+        if h1.knock():
+            learned = h1.learnedBlocks()
+            id = learned[0].ID
+            if id == 1:
+                color = "Rose"
+                 
             
-            # FIX 4: Compare string to string
-            if current_data == 'TEAM 03':
-                print("TEAM 03")
-            else:
-                print("pas TEAM 03")
+            
+
+        if current_data:
+            print(current_data + " " +color)
 
     cv2.imshow("code detector", img)
 
