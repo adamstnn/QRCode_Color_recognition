@@ -3,7 +3,7 @@ from picamera2 import Picamera2
 from huskylib import *
 
 h1 = HuskyLensLibrary("I2C", "", address=0x32)
-h1.set_alg(ALGORITHM_COLOR_RECOGNITION)
+h1.algorthim(ALGORITHM_COLOR_RECOGNITION)
 
 picam2 = Picamera2()
 
