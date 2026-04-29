@@ -44,8 +44,8 @@ while True:
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 250, 120), 2)
 
 
-        learned = h1.learnedBlocks()
-        print(learned)
+        # learned = h1.learnedBlocks()
+        # print(learned)
         # if learned and len(learned) > 0:
         #     id = learned[0].ID
         #     if id == 1:
